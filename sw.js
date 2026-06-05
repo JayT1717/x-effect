@@ -1,4 +1,4 @@
-const CACHE_NAME = 'xeffect-v1';
+const CACHE_NAME = 'xeffect-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',
