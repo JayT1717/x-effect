@@ -1,3 +1,4 @@
+// Service Worker v2 - Updated with draggable cards feature
 const CACHE_NAME = 'xeffect-v2';
 const STATIC_ASSETS = [
   './',
