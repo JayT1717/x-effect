@@ -1,6 +1,7 @@
 // X Effect Habit Tracker - Main App
 const app = {
   habits: [],
+  draggedHabit: null,
 
   init() {
     this.loadHabits();
@@ -173,6 +174,8 @@ const app = {
   createLogCard(habit, today) {
     const card = document.createElement('div');
     card.className = 'habit-card';
+    card.draggable = true;
+    card.dataset.habitId = habit.id;
 
     const header = document.createElement('div');
     header.className = 'habit-header';
@@ -259,7 +262,60 @@ const app = {
 
     card.appendChild(header);
     card.appendChild(content);
+
+    card.addEventListener('dragstart', (e) => this.handleDragStart(e, habit.id));
+    card.addEventListener('dragover', (e) => this.handleDragOver(e));
+    card.addEventListener('drop', (e) => this.handleDrop(e, habit.id));
+    card.addEventListener('dragend', (e) => this.handleDragEnd(e));
+
     return card;
+  },
+
+  handleDragStart(e, habitId) {
+    this.draggedHabit = habitId;
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  },
+
+  handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const draggingCard = document.querySelector('.dragging');
+    const container = document.getElementById('habitsContainer');
+    const card = e.target.closest('.habit-card');
+
+    if (card) {
+      const rect = card.getBoundingClientRect();
+      const midpoint = rect.y + rect.height / 2;
+      if (e.clientY > midpoint) {
+        card.parentNode.insertBefore(draggingCard, card.nextSibling);
+      } else {
+        card.parentNode.insertBefore(draggingCard, card);
+      }
+    }
+  },
+
+  handleDrop(e, targetHabitId) {
+    e.preventDefault();
+    if (this.draggedHabit !== targetHabitId) {
+      this.reorderHabits(this.draggedHabit, targetHabitId);
+    }
+  },
+
+  handleDragEnd(e) {
+    e.target.classList.remove('dragging');
+    this.draggedHabit = null;
+  },
+
+  reorderHabits(draggedId, targetId) {
+    const draggedIndex = this.habits.findIndex(h => h.id === draggedId);
+    const targetIndex = this.habits.findIndex(h => h.id === targetId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const [draggedHabit] = this.habits.splice(draggedIndex, 1);
+    this.habits.splice(targetIndex, 0, draggedHabit);
+    this.saveHabits();
   },
 
   renderDashboard() {

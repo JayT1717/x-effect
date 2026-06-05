@@ -278,6 +278,18 @@ body {
   padding: 1.5rem;
   background: var(--card-bg);
   box-shadow: var(--shadow);
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.habit-card:active {
+  cursor: grabbing;
+}
+
+.habit-card.dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .habit-header {
