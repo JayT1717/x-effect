@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="X Effect - A 49-day habit tracker PWA">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23667eea' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>X</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23667eea' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'>X</text></svg>">
+  <meta name="theme-color" content="#667eea">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="style.css">
+  <title>X Effect - Habit Tracker</title>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-top">
+        <h1>X Effect</h1>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
+      </div>
+      <p class="tagline">49-day Habit Tracker</p>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="log">Log</button>
+      <button class="tab-btn" data-tab="dashboard">Dashboard</button>
+    </nav>
+
+    <main class="content">
+      <!-- Log Tab -->
+      <section id="log" class="tab-content active">
+        <div class="habit-form">
+          <h2>Add New Habit</h2>
+          <form id="habitForm">
+            <input type="text" id="habitName" placeholder="Habit name (e.g., Exercise)" required>
+            <div class="color-picker">
+              <label for="habitColor">Color:</label>
+              <select id="habitColor">
+                <option value="#667eea">Purple</option>
+                <option value="#f093fb">Pink</option>
+                <option value="#4facfe">Blue</option>
+                <option value="#43e97b">Green</option>
+                <option value="#fa709a">Red</option>
+                <option value="#feca57">Yellow</option>
+                <option value="#ff9ff3">Coral</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary">Create Habit</button>
+          </form>
+        </div>
+
+        <div id="habitsContainer" class="habits-container"></div>
+      </section>
+
+      <!-- Dashboard Tab -->
+      <section id="dashboard" class="tab-content">
+        <div id="dashboardContainer" class="dashboard-container"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>&copy; 2026 X Effect | Track your progress</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
