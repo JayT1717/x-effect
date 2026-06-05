@@ -1,7 +1,6 @@
 // X Effect Habit Tracker - Main App
 const app = {
   habits: [],
-  draggedHabit: null,
 
   init() {
     this.loadHabits();
@@ -174,7 +173,6 @@ const app = {
   createLogCard(habit, today) {
     const card = document.createElement('div');
     card.className = 'habit-card';
-    card.draggable = true;
     card.dataset.habitId = habit.id;
 
     const header = document.createElement('div');
@@ -197,12 +195,18 @@ const app = {
     headerContent.appendChild(colorIndicator);
     headerContent.appendChild(name);
 
+    const menuBtn = document.createElement('button');
+    menuBtn.className = 'btn-menu';
+    menuBtn.textContent = '⋮';
+    menuBtn.addEventListener('click', (e) => this.toggleMenu(e, habit.id));
+
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-delete';
     deleteBtn.textContent = 'Delete';
     deleteBtn.addEventListener('click', () => this.deleteHabit(habit.id));
 
     header.appendChild(headerContent);
+    header.appendChild(menuBtn);
     header.appendChild(deleteBtn);
 
     const content = document.createElement('div');
@@ -263,59 +267,56 @@ const app = {
     card.appendChild(header);
     card.appendChild(content);
 
-    card.addEventListener('dragstart', (e) => this.handleDragStart(e, habit.id));
-    card.addEventListener('dragover', (e) => this.handleDragOver(e));
-    card.addEventListener('drop', (e) => this.handleDrop(e, habit.id));
-    card.addEventListener('dragend', (e) => this.handleDragEnd(e));
-
     return card;
   },
 
-  handleDragStart(e, habitId) {
-    this.draggedHabit = habitId;
-    e.target.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-  },
-
-  handleDragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    const draggingCard = document.querySelector('.dragging');
-    const container = document.getElementById('habitsContainer');
-    const card = e.target.closest('.habit-card');
-
-    if (card) {
-      const rect = card.getBoundingClientRect();
-      const midpoint = rect.y + rect.height / 2;
-      if (e.clientY > midpoint) {
-        card.parentNode.insertBefore(draggingCard, card.nextSibling);
-      } else {
-        card.parentNode.insertBefore(draggingCard, card);
-      }
+  toggleMenu(e, habitId) {
+    e.stopPropagation();
+    const existingMenu = document.querySelector('.habit-menu');
+    if (existingMenu) {
+      existingMenu.remove();
     }
-  },
 
-  handleDrop(e, targetHabitId) {
-    e.preventDefault();
-    if (this.draggedHabit !== targetHabitId) {
-      this.reorderHabits(this.draggedHabit, targetHabitId);
+    const habitIndex = this.habits.findIndex(h => h.id === habitId);
+    const menu = document.createElement('div');
+    menu.className = 'habit-menu';
+
+    if (habitIndex > 0) {
+      const moveUpBtn = document.createElement('button');
+      moveUpBtn.className = 'menu-item';
+      moveUpBtn.textContent = '↑ Move Up';
+      moveUpBtn.addEventListener('click', () => this.moveHabit(habitId, habitIndex, -1));
+      menu.appendChild(moveUpBtn);
     }
+
+    if (habitIndex < this.habits.length - 1) {
+      const moveDownBtn = document.createElement('button');
+      moveDownBtn.className = 'menu-item';
+      moveDownBtn.textContent = '↓ Move Down';
+      moveDownBtn.addEventListener('click', () => this.moveHabit(habitId, habitIndex, 1));
+      menu.appendChild(moveDownBtn);
+    }
+
+    const btn = e.target;
+    const rect = btn.getBoundingClientRect();
+    menu.style.position = 'fixed';
+    menu.style.top = (rect.bottom + 5) + 'px';
+    menu.style.right = (window.innerWidth - rect.right) + 'px';
+
+    document.body.appendChild(menu);
+
+    document.addEventListener('click', () => menu.remove(), { once: true });
   },
 
-  handleDragEnd(e) {
-    e.target.classList.remove('dragging');
-    this.draggedHabit = null;
-  },
+  moveHabit(habitId, currentIndex, direction) {
+    const newIndex = currentIndex + direction;
+    if (newIndex < 0 || newIndex >= this.habits.length) return;
 
-  reorderHabits(draggedId, targetId) {
-    const draggedIndex = this.habits.findIndex(h => h.id === draggedId);
-    const targetIndex = this.habits.findIndex(h => h.id === targetId);
-
-    if (draggedIndex === -1 || targetIndex === -1) return;
-
-    const [draggedHabit] = this.habits.splice(draggedIndex, 1);
-    this.habits.splice(targetIndex, 0, draggedHabit);
+    const habit = this.habits[currentIndex];
+    this.habits.splice(currentIndex, 1);
+    this.habits.splice(newIndex, 0, habit);
     this.saveHabits();
+    this.render();
   },
 
   renderDashboard() {

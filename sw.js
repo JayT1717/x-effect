@@ -1,6 +1,5 @@
-// Service Worker - Updated with draggable cards feature
-// Last updated: 2026-06-05T17:30:00Z
-const CACHE_NAME = 'xeffect-v2-20260605';
+// Service Worker v3 - Context menu for habit reordering
+const CACHE_NAME = 'xeffect-v3';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -8,8 +7,6 @@ const STATIC_ASSETS = [
   './app.js',
   './manifest.json'
 ];
-
-const CRITICAL_FILES = ['./index.html', './app.js', './style.css'];
 
 // Install event - cache static assets
 self.addEventListener('install', event => {
@@ -37,16 +34,16 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch event - network-first for critical files, cache-first for others
+// Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', event => {
-  const isCritical = CRITICAL_FILES.some(file => event.request.url.includes(file));
-
-  if (isCritical) {
-    // Network-first strategy for critical files
-    event.respondWith(
-      fetch(event.request).then(response => {
-        if (!response || response.status !== 200) {
-          return caches.match(event.request);
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      if (response) {
+        return response;
+      }
+      return fetch(event.request).then(response => {
+        if (!response || response.status !== 200 || response.type === 'error') {
+          return response;
         }
         const responseToCache = response.clone();
         caches.open(CACHE_NAME).then(cache => {
@@ -54,29 +51,8 @@ self.addEventListener('fetch', event => {
         });
         return response;
       }).catch(() => {
-        return caches.match(event.request);
-      })
-    );
-  } else {
-    // Cache-first strategy for other assets
-    event.respondWith(
-      caches.match(event.request).then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).then(response => {
-          if (!response || response.status !== 200 || response.type === 'error') {
-            return response;
-          }
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        }).catch(() => {
-          return caches.match('./index.html');
-        });
-      })
-    );
-  }
+        return caches.match('./index.html');
+      });
+    })
+  );
 });
