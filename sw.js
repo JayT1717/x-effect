@@ -1,5 +1,6 @@
-// Service Worker v2 - Updated with draggable cards feature
-const CACHE_NAME = 'xeffect-v2';
+// Service Worker - Updated with draggable cards feature
+// Last updated: 2026-06-05T17:30:00Z
+const CACHE_NAME = 'xeffect-v2-20260605';
 const STATIC_ASSETS = [
   './',
   './index.html',
